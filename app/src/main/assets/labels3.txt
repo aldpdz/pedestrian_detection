@@ -1,0 +1,3 @@
+Angry
+Happy
+Neutral
