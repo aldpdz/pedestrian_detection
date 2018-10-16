@@ -1,10 +1,13 @@
 package com.cic.robotics_lab.pedestrian_detector;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 
 import java.util.List;
 
 public interface Classifier {
+
+    String string_result =  "";
 
     class Recognition {
         /**
@@ -62,7 +65,9 @@ public interface Classifier {
     }
 
 
-    List<Recognition> recognizeImage(Bitmap bitmap);
+    float[][][] recognizeImage(Bitmap bitmap, Context context);
+
+    String getResult_string();
 
     void close();
 }
