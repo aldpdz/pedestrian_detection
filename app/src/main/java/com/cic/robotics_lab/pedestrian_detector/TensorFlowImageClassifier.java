@@ -63,19 +63,19 @@ public class TensorFlowImageClassifier implements Classifier {
         ByteBuffer byteBuffer = convertBitmapToByteBuffer(bitmap);
         float[][][] result = new float[1][8732][33];
         interpreter.run(byteBuffer, result);
-        StringBuilder builder = new StringBuilder();
-        for(int i = 0; i < result[0].length; i++){
-            for(int j = 0; j < result[0][0].length; j++){
-                builder.append( result[0][i][j]);
-                if(j < result[0][0].length - 1){
-                    builder.append(",");
-                }
-            }
-            if(i < result[0].length - 1){
-                builder.append(";");
-            }
-        }
-        result_string = builder.toString();
+//        StringBuilder builder = new StringBuilder();
+//        for(int i = 0; i < result[0].length; i++){
+//            for(int j = 0; j < result[0][0].length; j++){
+//                builder.append( result[0][i][j]);
+//                if(j < result[0][0].length - 1){
+//                    builder.append(",");
+//                }
+//            }
+//            if(i < result[0].length - 1){
+//                builder.append(";");
+//            }
+//        }
+//        result_string = builder.toString();
         Log.d("finished", "yes");
         return result;
     }
@@ -115,9 +115,9 @@ public class TensorFlowImageClassifier implements Classifier {
         for (int i = 0; i < inputSize; ++i) {
             for (int j = 0; j < inputSize; ++j) {
                 final int val = intValues[pixel++];
-                byteBuffer.putFloat((((val >> 16) & 0xFF)/255.0f));
-                byteBuffer.putFloat((((val >> 8) & 0xFF)/255.0f));
-                byteBuffer.putFloat((((val) & 0xFF)/255.0f));
+                byteBuffer.putFloat((((val >> 16) & 0xFF)));
+                byteBuffer.putFloat((((val >> 8) & 0xFF)));
+                byteBuffer.putFloat((((val) & 0xFF)));
             }
         }
         return byteBuffer;

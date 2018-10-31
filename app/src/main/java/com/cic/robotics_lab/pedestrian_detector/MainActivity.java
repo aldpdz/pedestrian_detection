@@ -76,11 +76,15 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                bmpDetect = Bitmap.createScaledBitmap(bmpDetect, INPUT_SIZE, INPUT_SIZE, false);
+//                bmpDetect = Bitmap.createScaledBitmap(bmpDetect, INPUT_SIZE, INPUT_SIZE, false);
 //                bmpDetect = toGrayScale(bmpDetect);
                 final float[][][] results = classifier.recognizeImage(bmpDetect, getApplicationContext());
+                Decode_Detections decode_detections = new Decode_Detections(results);
+                ArrayList<float[]> decodeDetections = decode_detections.getPersonThreshold(results, 0.5f);
 
-
+                Bitmap new_bitmap = Utils.drawBoundingBox(decodeDetections, bmpDetect.copy(Bitmap.Config.ARGB_8888, true));
+                ImageView imageView = findViewById(R.id.imageView);
+                imageView.setImageBitmap(new_bitmap);
 
                 textViewResult.setText(results + "");
             }
