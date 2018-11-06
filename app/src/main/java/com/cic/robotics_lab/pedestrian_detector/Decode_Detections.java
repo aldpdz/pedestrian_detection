@@ -2,6 +2,7 @@ package com.cic.robotics_lab.pedestrian_detector;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by aldopedraza on 29/10/18.
@@ -85,7 +86,7 @@ public class Decode_Detections {
         // Determine the area of each bounding box
         for(float[] box: boxes){
             confidence.add(box[0]);
-            area.add((box[3] - box[1] + 1) * (box[4] - box[2] + 1));
+//            area.add((box[3] - box[1] + 1) * (box[4] - box[2] + 1));
         }
 
         // Index array
@@ -95,6 +96,7 @@ public class Decode_Detections {
 
         // Sorted
         Collections.sort(aux);
+
         // Get all index values
         for(int i = 0; i < aux.size(); i++){
             idxs.add(confidence.indexOf(aux.get(i)));
@@ -107,41 +109,62 @@ public class Decode_Detections {
             int last = idxs.size() - 1;
             int i = idxs.get(last);
             // add box to the picked boxes
-            pick.add(boxes.get(idxs.get(last)));
+            pick.add(boxes.get(i));
             ArrayList<Integer> supress = new ArrayList<>();
-            supress.add(last);
 
             // Loop over all indexes in the indexes list
             for( int pos = 0; pos < last; pos++){
                 // grab the current index
                 int j = idxs.get(pos);
 
-                // find the largest (x, y) coordinates for the start of the bounding box and the
-                // smallest (x, y) coordinates for the end of the bounding box
-                float xx1 = Math.max(boxes.get(i)[1], boxes.get(j)[1]);
-                float yy1 = Math.max(boxes.get(i)[2], boxes.get(j)[2]);
-                float xx2 = Math.max(boxes.get(i)[3], boxes.get(j)[3]);
-                float yy2 = Math.max(boxes.get(i)[4], boxes.get(j)[4]);
+//                // find the largest (x, y) coordinates for the start of the bounding box and the
+//                // smallest (x, y) coordinates for the end of the bounding box
+//                float xx1 = Math.max(boxes.get(i)[1], boxes.get(j)[1]);
+//                float yy1 = Math.max(boxes.get(i)[2], boxes.get(j)[2]);
+//                float xx2 = Math.min(boxes.get(i)[3], boxes.get(j)[3]);
+//                float yy2 = Math.min(boxes.get(i)[4], boxes.get(j)[4]);
+//
+//                // compute the width an height of the bounding box
+//                float w = Math.max(0.0f, xx2 - xx1 + 1);
+//                float h = Math.max(0.0f, yy2 - yy1 + 1);
+//
+//                // compute the ratio of overlap between the computed bounding box and the
+//                // bounding box ain the area list
+//                float iou = (w * h) / area.get(j);
 
-                // compute the width an height of the bounding box
-                float w = Math.max(0.0f, xx2 - xx1 + 1);
-                float h = Math.max(0.0f, yy2 - yy1 + 1);
-
-                // compute the ratio of overlap between the computed bounding box and the
-                // bounding box ain the area list
-                float overlap = (w * h) / area.get(j);
+                float iou = iou(boxes.get(i), boxes.get(j));
 
                 // if there is sufficient overlap, suppress the current bounding box
-                if( overlap > overlapThresh){
+                if( iou > overlapThresh){
                     supress.add(pos);
                 }
             }
             // delete all indexes from the index list that are in the suppression list
-//            for(int ind_s = 0; ind_s < supress.size(); ind_s++){
-//                idxs.remove(supress.get(ind_s));
-//            }
-            idxs.removeAll(supress);
+            supress.add(last);
+            for(int ind_s = supress.size()-1; ind_s >= 0; ind_s--){
+                int remove_v = supress.get(ind_s);
+                idxs.remove(remove_v);
+            }
         }
         return pick;
+    }
+
+    private float iou(float[] box1, float[] box2){
+        // Determine the (x, y)-coordinates of the intersection rectangle
+        Float xA = Math.max(box1[1], box2[1]);
+        Float yA = Math.max(box1[2], box2[2]);
+        Float xB = Math.min(box1[3] + box1[1], box2[3] + box2[1]);
+        Float yB = Math.min(box1[4] + box1[2], box2[4] + box2[2]);
+
+        // Compute the area of intersection rectangle
+        Float interArea = Math.max(0, xB - xA + 1) * Math.max(0, yB - yA + 1);
+
+        // Compute the area of each rectangle
+        Float boxAarea = box1[3] * box1[4];
+        Float boxBarea = box2[3] * box2[4];
+
+        // compute the intersection over union by taking the intersection
+        // area and dividing it by the sum of prediction + ground truth areas - the interesection area
+        return interArea / (boxAarea + boxBarea - interArea);
     }
 }
