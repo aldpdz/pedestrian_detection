@@ -80,13 +80,9 @@ public class Decode_Detections {
         // Confidence array
         ArrayList<Float> confidence = new ArrayList<>();
 
-        // Area arrayList
-        ArrayList<Float> area = new ArrayList<>();
-
         // Determine the area of each bounding box
         for(float[] box: boxes){
             confidence.add(box[0]);
-//            area.add((box[3] - box[1] + 1) * (box[4] - box[2] + 1));
         }
 
         // Index array
@@ -116,21 +112,6 @@ public class Decode_Detections {
             for( int pos = 0; pos < last; pos++){
                 // grab the current index
                 int j = idxs.get(pos);
-
-//                // find the largest (x, y) coordinates for the start of the bounding box and the
-//                // smallest (x, y) coordinates for the end of the bounding box
-//                float xx1 = Math.max(boxes.get(i)[1], boxes.get(j)[1]);
-//                float yy1 = Math.max(boxes.get(i)[2], boxes.get(j)[2]);
-//                float xx2 = Math.min(boxes.get(i)[3], boxes.get(j)[3]);
-//                float yy2 = Math.min(boxes.get(i)[4], boxes.get(j)[4]);
-//
-//                // compute the width an height of the bounding box
-//                float w = Math.max(0.0f, xx2 - xx1 + 1);
-//                float h = Math.max(0.0f, yy2 - yy1 + 1);
-//
-//                // compute the ratio of overlap between the computed bounding box and the
-//                // bounding box ain the area list
-//                float iou = (w * h) / area.get(j);
 
                 float iou = iou(boxes.get(i), boxes.get(j));
 
