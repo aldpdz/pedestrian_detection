@@ -1,6 +1,5 @@
 package com.cic.robotics_lab.pedestrian_detector;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -10,19 +9,16 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
-import android.provider.SyncStateContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -36,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private int SAVE = 12;
 
     private Classifier classifier;
-    private Bitmap bmpDetect;
+    private Bitmap bmpOriginal;
     private Executor executor = Executors.newSingleThreadExecutor();
     private TextView textViewResult;
 
@@ -76,17 +72,34 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                bmpDetect = Bitmap.createScaledBitmap(bmpDetect, INPUT_SIZE, INPUT_SIZE, false);
-//                bmpDetect = toGrayScale(bmpDetect);
-                final float[][][] results = classifier.recognizeImage(bmpDetect, getApplicationContext());
-                Decode_Detections decode_detections = new Decode_Detections(results);
-                ArrayList<float[]> decodeDetections = decode_detections.getPersonThreshold(results, 0.5f);
+                long startTime;
+                long endTime;
+                String rescaleTime;
+                String netTime;
+                String posProcessTime;
 
-                Bitmap new_bitmap = Utils.drawBoundingBox(decodeDetections, bmpDetect.copy(Bitmap.Config.ARGB_8888, true));
+                startTime = System.currentTimeMillis();
+                Bitmap bmpDetect = Bitmap.createScaledBitmap(bmpOriginal, INPUT_SIZE, INPUT_SIZE, false);
+                endTime = System.currentTimeMillis();
+                rescaleTime = String.format("%.4f", (float)(endTime - startTime)/1000);
+
+                startTime = System.currentTimeMillis();
+                final float[][][] results = classifier.recognizeImage(bmpDetect, getApplicationContext());
+                endTime = System.currentTimeMillis();
+                netTime = String.format("%.4f", (float)(endTime - startTime)/1000);
+
+                startTime = System.currentTimeMillis();
+                Decode_Detections decode_detections = new Decode_Detections(results, 0.5f, bmpOriginal.getWidth(), bmpOriginal.getHeight());
+                ArrayList<float[]> decodeDetections = decode_detections.getDecode_detections(results);
+                endTime = System.currentTimeMillis();
+                posProcessTime = String.format( "%.4f", (float)(endTime - startTime)/1000);
+
+                Bitmap new_bitmap = Utils.drawBoundingBox(decodeDetections, bmpOriginal.copy(Bitmap.Config.ARGB_8888, true));
                 ImageView imageView = findViewById(R.id.imageView);
                 imageView.setImageBitmap(new_bitmap);
 
-                textViewResult.setText(results + "");
+                String time = "Rescale time: " + rescaleTime + "sec. \nNetwork time: " + netTime + " sec. \nPosprocessing time: " + posProcessTime + " sec.";
+                textViewResult.setText(time);
             }
         });
     }
@@ -120,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                     ImageView imageView = findViewById(R.id.imageView);
                     imageView.setImageBitmap(bitmap);
-                    bmpDetect = bitmap;
+                    bmpOriginal = bitmap;
                 } catch (IOException e){
                     e.printStackTrace();
                 }
@@ -147,29 +160,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initTensorFlowAndLoadModel() {
-//        executor.execute(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    classifier = TensorFlowImageClassifier.create(
-//                            getAssets(),
-//                            MODEL_PATH,
-//                            LABEL_PATH,
-//                            INPUT_SIZE);
-//                } catch (final Exception e) {
-//                    throw new RuntimeException("Error initializing TensorFlow!", e);
-//                }
-//            }
-//        });
-        try {
-            classifier = TensorFlowImageClassifier.create(
-                    getAssets(),
-                    MODEL_PATH,
-                    LABEL_PATH,
-                    INPUT_SIZE);
-        } catch (final Exception e) {
-            throw new RuntimeException("Error initializing TensorFlow!", e);
-        }
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    classifier = TensorFlowImageClassifier.create(
+                            getAssets(),
+                            MODEL_PATH,
+                            LABEL_PATH,
+                            INPUT_SIZE);
+                } catch (final Exception e) {
+                    throw new RuntimeException("Error initializing TensorFlow!", e);
+                }
+            }
+        });
+//        try {
+//            classifier = TensorFlowImageClassifier.create(
+//                    getAssets(),
+//                    MODEL_PATH,
+//                    LABEL_PATH,
+//                    INPUT_SIZE);
+//        } catch (final Exception e) {
+//            throw new RuntimeException("Error initializing TensorFlow!", e);
+//        }
     }
 
     public Bitmap toGrayScale(Bitmap bmpOriginal){

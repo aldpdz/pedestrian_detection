@@ -2,7 +2,6 @@ package com.cic.robotics_lab.pedestrian_detector;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Created by aldopedraza on 29/10/18.
@@ -14,11 +13,16 @@ import java.util.List;
 public class Decode_Detections {
     private float [][][] rawDetections;
     private ArrayList<float[]> thresholding_det;
-    private int img_size = 300;
+    private int width;
+    private int height;
+    private float threshold;
 
-    public Decode_Detections(float [][][] rawDetections){
+    public Decode_Detections(float [][][] rawDetections, float threshold, int width, int height){
         this.rawDetections = rawDetections;
-        thresholding_det = getPersonThreshold(this.rawDetections, 0.5f);
+        this.threshold = threshold;
+        this.width = width;
+        this.height = height;
+        thresholding_det = getDecode_detections(this.rawDetections);
     }
 
 
@@ -28,7 +32,7 @@ public class Decode_Detections {
      * @param threshold - threshold applied
      * @return ArrayList of float arrays (confidence + 12)
      */
-    public ArrayList<float[]> getPersonThreshold(float[][][] rawDetections, float threshold){
+    public ArrayList<float[]> getDecode_detections(float[][][] rawDetections){
         ArrayList<float[]> thresholdDetections = new ArrayList<>();
 
         // loop over the prediction
@@ -52,10 +56,10 @@ public class Decode_Detections {
                 float ymax = cy + 0.5f * h;
 
                 // convert from relative coordinates to absolute coordinates
-                xmin = xmin * img_size;
-                ymin = ymin * img_size;
-                xmax = xmax * img_size;
-                ymax = ymax * img_size;
+                xmin = xmin * width;
+                ymin = ymin * height;
+                xmax = xmax * width;
+                ymax = ymax * height;
 
                 values[1] = xmin;
                 values[2] = ymin;
@@ -69,6 +73,12 @@ public class Decode_Detections {
         return nonMaxSuppression(thresholdDetections, 0.45f);
     }
 
+    /***
+     * Apply non-maximum-suppression
+     * @param boxes - List of boxes
+     * @param overlapThresh - Threshold
+     * @return List of boxes after applying nms.
+     */
     public ArrayList<float[]> nonMaxSuppression(ArrayList<float[]> boxes, float overlapThresh){
         // If there are no boxes, return an empty arraylist
         if (boxes.isEmpty())
@@ -130,6 +140,12 @@ public class Decode_Detections {
         return pick;
     }
 
+    /***
+     * Get the intersection over union from to boxes
+     * @param box1 - Box one
+     * @param box2 - Box two
+     * @return float - Intersection over union
+     */
     private float iou(float[] box1, float[] box2){
         // Determine the (x, y)-coordinates of the intersection rectangle
         Float xA = Math.max(box1[1], box2[1]);

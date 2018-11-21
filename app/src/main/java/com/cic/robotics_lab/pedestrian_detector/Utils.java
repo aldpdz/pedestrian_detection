@@ -4,12 +4,12 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 
 import java.util.ArrayList;
 
 /**
  * Created by aldopedraza on 29/10/18.
+ * Util class
  */
 
 public class Utils {
@@ -22,10 +22,13 @@ public class Utils {
         paint.setStyle(Paint.Style.STROKE);
         paint.setColor(Color.RED);
 
+        float max = Math.max(bitmap.getWidth(), bitmap.getHeight());
+
+        paint.setStrokeWidth(max / 100);
+
+
         for (int i = 0; i < boxes.size(); i++){
             // Initialize a new Rect object
-            Rect rectangle = new Rect(0, 0, canvas.getWidth(), canvas.getHeight());
-
             canvas.drawRect(boxes.get(i)[1], boxes.get(i)[2], boxes.get(i)[3], boxes.get(i)[4], paint);
         }
         return bitmap;
