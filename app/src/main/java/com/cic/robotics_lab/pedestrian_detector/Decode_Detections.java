@@ -12,7 +12,6 @@ import java.util.Collections;
 
 public class Decode_Detections {
     private float [][][] rawDetections;
-    private ArrayList<float[]> thresholding_det;
     private int width;
     private int height;
     private float threshold;
@@ -22,17 +21,14 @@ public class Decode_Detections {
         this.threshold = threshold;
         this.width = width;
         this.height = height;
-        thresholding_det = getDecode_detections(this.rawDetections);
     }
 
 
     /***
      * Perform threshold over the person confidence
-     * @param rawDetections - raw detections from the model
-     * @param threshold - threshold applied
      * @return ArrayList of float arrays (confidence + 12)
      */
-    public ArrayList<float[]> getDecode_detections(float[][][] rawDetections){
+    public ArrayList<float[]> getDecode_detections(){
         ArrayList<float[]> thresholdDetections = new ArrayList<>();
 
         // loop over the prediction
@@ -154,11 +150,11 @@ public class Decode_Detections {
         Float yB = Math.min(box1[4] + box1[2], box2[4] + box2[2]);
 
         // Compute the area of intersection rectangle
-        Float interArea = Math.max(0, xB - xA + 1) * Math.max(0, yB - yA + 1);
+        Float interArea = Math.max(0, xB - xA -1) * Math.max(0, yB - yA -1);
 
         // Compute the area of each rectangle
-        Float boxAarea = box1[3] * box1[4];
-        Float boxBarea = box2[3] * box2[4];
+        Float boxAarea = (box1[3] -1) * (box1[4] -1);
+        Float boxBarea = (box2[3] -1) * (box2[4] -1);
 
         // compute the intersection over union by taking the intersection
         // area and dividing it by the sum of prediction + ground truth areas - the interesection area

@@ -5,15 +5,12 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.os.Environment;
 import android.util.Log;
 
 import org.tensorflow.lite.Interpreter;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
@@ -21,10 +18,7 @@ import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.PriorityQueue;
 
 public class TensorFlowImageClassifier implements Classifier {
 
@@ -115,9 +109,11 @@ public class TensorFlowImageClassifier implements Classifier {
         for (int i = 0; i < inputSize; ++i) {
             for (int j = 0; j < inputSize; ++j) {
                 final int val = intValues[pixel++];
-                byteBuffer.putFloat((((val >> 16) & 0xFF)));
-                byteBuffer.putFloat((((val >> 8) & 0xFF)));
-                byteBuffer.putFloat((((val) & 0xFF)));
+                // Set order as they were trained [2, 1, 0]
+                // Subtract mean [123, 117, 104]
+                byteBuffer.putFloat(((val) & 0xFF) - 104); // channel 2
+                byteBuffer.putFloat(((val >> 8) & 0xFF) - 117); // channel 1
+                byteBuffer.putFloat(((val >> 16) & 0xFF) - 123); // channel 0
             }
         }
         return byteBuffer;

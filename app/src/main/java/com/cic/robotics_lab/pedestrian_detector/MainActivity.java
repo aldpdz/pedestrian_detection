@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
                 startTime = System.currentTimeMillis();
                 Decode_Detections decode_detections = new Decode_Detections(results, 0.5f, bmpOriginal.getWidth(), bmpOriginal.getHeight());
-                ArrayList<float[]> decodeDetections = decode_detections.getDecode_detections(results);
+                ArrayList<float[]> decodeDetections = decode_detections.getDecode_detections();
                 endTime = System.currentTimeMillis();
                 posProcessTime = String.format( "%.4f", (float)(endTime - startTime)/1000);
 
