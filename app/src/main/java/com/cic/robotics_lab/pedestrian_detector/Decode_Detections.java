@@ -34,16 +34,31 @@ public class Decode_Detections {
         // loop over the prediction
         for(int i = 0; i < rawDetections[0].length; i++){
             // perform threshold over the person item
-            if (rawDetections[0][i][15] > threshold){
+            // int id_class = 15
+            int id_class = 1;
+            if (rawDetections[0][i][id_class] > threshold){
                 float [] values = new float[5];
                 float [] detection = rawDetections[0][i];
-                values[0] = detection[15]; // confidence value
+                values[0] = detection[id_class]; // confidence value
+
+                float cx = .0f;
+                float cy = .0f;
+                float w = .0f;
+                float h = .0f;
 
                 // convert anchor box offsets to image offsets
-                float cx = detection[21] * detection[29] * detection[27] + detection[25];
-                float cy = detection[22] * detection[30] * detection[28] + detection[26];
-                float w = (float) Math.exp((double)(detection[23] * detection[31])) * detection[27];
-                float h = (float) Math.exp((double)(detection[24] * detection[32])) * detection[28];
+                // configuration 20 classes
+                if(id_class == 15){
+                    cx = detection[21] * detection[29] * detection[27] + detection[25];
+                    cy = detection[22] * detection[30] * detection[28] + detection[26];
+                    w = (float) Math.exp((double)(detection[23] * detection[31])) * detection[27];
+                    h = (float) Math.exp((double)(detection[24] * detection[32])) * detection[28];
+                }else if(id_class == 1){
+                    cx = detection[2] * detection[10] * detection[8] + detection[6];
+                    cy = detection[3] * detection[11] * detection[9] + detection[7];
+                    w = (float) Math.exp((double)(detection[4] * detection[12])) * detection[8];
+                    h = (float) Math.exp((double)(detection[5] * detection[13])) * detection[9];
+                }
 
                 // convert centroids to corners
                 float xmin = cx - 0.5f * w;
@@ -59,8 +74,8 @@ public class Decode_Detections {
 
                 values[1] = xmin;
                 values[2] = ymin;
-                values[3] = xmax;
-                values[4] = ymax;
+                values[3] = xmax - xmin;
+                values[4] = ymax - ymin;
 
                 thresholdDetections.add(values);
             }

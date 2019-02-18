@@ -25,7 +25,7 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity {
 
     private static int PICK_IMAGE_REQUEST = 1;
-    private static final String MODEL_PATH = "converted_model.tflite";
+    private static final String MODEL_PATH = "tflite_vgg13_bn.tflite";
     private static final String LABEL_PATH = "labels3.txt";
     private static final int INPUT_SIZE = 300;
 
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 netTime = String.format("%.4f", (float)(endTime - startTime)/1000);
 
                 startTime = System.currentTimeMillis();
-                Decode_Detections decode_detections = new Decode_Detections(results, 0.5f, bmpOriginal.getWidth(), bmpOriginal.getHeight());
+                Decode_Detections decode_detections = new Decode_Detections(results, 0.50f, bmpOriginal.getWidth(), bmpOriginal.getHeight());
                 ArrayList<float[]> decodeDetections = decode_detections.getDecode_detections();
                 endTime = System.currentTimeMillis();
                 posProcessTime = String.format( "%.4f", (float)(endTime - startTime)/1000);
@@ -183,21 +183,5 @@ public class MainActivity extends AppCompatActivity {
 //        } catch (final Exception e) {
 //            throw new RuntimeException("Error initializing TensorFlow!", e);
 //        }
-    }
-
-    public Bitmap toGrayScale(Bitmap bmpOriginal){
-        int width, height;
-        height = bmpOriginal.getHeight();
-        width = bmpOriginal.getWidth();
-
-        Bitmap bmpGrayscale = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(bmpGrayscale);
-        Paint paint = new Paint();
-        ColorMatrix cm = new ColorMatrix();
-        cm.setSaturation(0);
-        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
-        paint.setColorFilter(f);
-        c.drawBitmap(bmpOriginal, 0, 0, paint);
-        return bmpGrayscale;
     }
 }

@@ -1,6 +1,5 @@
 package com.cic.robotics_lab.pedestrian_detector;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
@@ -9,16 +8,12 @@ import android.util.Log;
 
 import org.tensorflow.lite.Interpreter;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.List;
 
 public class TensorFlowImageClassifier implements Classifier {
 
@@ -42,11 +37,16 @@ public class TensorFlowImageClassifier implements Classifier {
                              String labelPath,
                              int inputSize) throws IOException {
 
+        // Initialize interpreter with GPU delegate
+//        GpuDelegate delegate = new GpuDelegate();
+
         TensorFlowImageClassifier classifier = new TensorFlowImageClassifier();
         MappedByteBuffer tfliteModel = classifier.loadModelFile(assetManager, modelPath);
-        classifier.tfliteOptions = new Interpreter.Options();
+
+//        classifier.tfliteOptions = new Interpreter.Options();
+//        Interpreter.Options options = (new Interpreter.Options()).addDelegate(delegate);
         classifier.interpreter = new Interpreter(tfliteModel, classifier.tfliteOptions);
-//        classifier.labelList = classifier.loadLabelList(assetManager, labelPath);
+//        classifier.interpreter = new Interpreter(tfliteModel, options);
         classifier.inputSize = inputSize;
 
         return classifier;
@@ -54,22 +54,12 @@ public class TensorFlowImageClassifier implements Classifier {
 
     @Override
     public float[][][] recognizeImage(Bitmap bitmap, Context context) {
+
+        // Ensure a valid EGL rendering context.
         ByteBuffer byteBuffer = convertBitmapToByteBuffer(bitmap);
-        float[][][] result = new float[1][8732][33];
+//        float[][][] result = new float[1][8732][33]; 20 classes
+        float[][][] result = new float[1][8732][14]; // 2 classes with vgg13
         interpreter.run(byteBuffer, result);
-//        StringBuilder builder = new StringBuilder();
-//        for(int i = 0; i < result[0].length; i++){
-//            for(int j = 0; j < result[0][0].length; j++){
-//                builder.append( result[0][i][j]);
-//                if(j < result[0][0].length - 1){
-//                    builder.append(",");
-//                }
-//            }
-//            if(i < result[0].length - 1){
-//                builder.append(";");
-//            }
-//        }
-//        result_string = builder.toString();
         Log.d("finished", "yes");
         return result;
     }
@@ -87,17 +77,6 @@ public class TensorFlowImageClassifier implements Classifier {
         long startOffset = fileDescriptor.getStartOffset();
         long declaredLength = fileDescriptor.getDeclaredLength();
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
-    }
-
-    private List<String> loadLabelList(AssetManager assetManager, String labelPath) throws IOException {
-        List<String> labelList = new ArrayList<>();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(assetManager.open(labelPath)));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            labelList.add(line);
-        }
-        reader.close();
-        return labelList;
     }
 
     private ByteBuffer convertBitmapToByteBuffer(Bitmap bitmap) {
@@ -122,36 +101,5 @@ public class TensorFlowImageClassifier implements Classifier {
     public String getResult_string(){
         return result_string;
     }
-
-//    @SuppressLint("DefaultLocale")
-//    private List<Recognition> getSortedResult(float[][] labelProbArray) {
-//
-//        PriorityQueue<Recognition> pq =
-//                new PriorityQueue<>(
-//                        MAX_RESULTS,
-//                        new Comparator<Recognition>() {
-//                            @Override
-//                            public int compare(Recognition lhs, Recognition rhs) {
-//                                return Float.compare(rhs.getConfidence(), lhs.getConfidence());
-//                            }
-//                        });
-//
-//        for (int i = 0; i < labelList.size(); ++i) {
-//            float confidence = labelProbArray[0][i];
-//            if (confidence > THRESHOLD) {
-//                pq.add(new Recognition("" + i,
-//                        labelList.size() > i ? labelList.get(i) : "unknown",
-//                        confidence));
-//            }
-//        }
-//
-//        final ArrayList<Recognition> recognitions = new ArrayList<>();
-//        int recognitionsSize = Math.min(pq.size(), MAX_RESULTS);
-//        for (int i = 0; i < recognitionsSize; ++i) {
-//            recognitions.add(pq.poll());
-//        }
-//
-//        return recognitions;
-//    }
 
 }

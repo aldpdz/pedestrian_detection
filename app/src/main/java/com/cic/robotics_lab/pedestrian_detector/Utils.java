@@ -29,7 +29,8 @@ public class Utils {
 
         for (int i = 0; i < boxes.size(); i++){
             // Initialize a new Rect object
-            canvas.drawRect(boxes.get(i)[1], boxes.get(i)[2], boxes.get(i)[3], boxes.get(i)[4], paint);
+            // add values because they were removed in Decode function
+            canvas.drawRect(boxes.get(i)[1], boxes.get(i)[2], boxes.get(i)[3] + boxes.get(i)[1], boxes.get(i)[4] + boxes.get(i)[2], paint);
         }
         return bitmap;
     }
