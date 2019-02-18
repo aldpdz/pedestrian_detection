@@ -130,10 +130,9 @@ public class MainActivity extends AppCompatActivity {
                 Uri uri = data.getData();
 
                 try{
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                    bmpOriginal = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                     ImageView imageView = findViewById(R.id.imageView);
-                    imageView.setImageBitmap(bitmap);
-                    bmpOriginal = bitmap;
+                    imageView.setImageBitmap(bmpOriginal);
                 } catch (IOException e){
                     e.printStackTrace();
                 }

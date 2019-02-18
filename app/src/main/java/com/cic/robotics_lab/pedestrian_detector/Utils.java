@@ -21,16 +21,28 @@ public class Utils {
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
         paint.setColor(Color.RED);
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
 
-        float max = Math.max(bitmap.getWidth(), bitmap.getHeight());
+        float max = Math.max(width, height);
 
         paint.setStrokeWidth(max / 100);
 
 
         for (int i = 0; i < boxes.size(); i++){
+
+            float cornerXMin = boxes.get(i)[1] * width;
+            float cornerYMin = boxes.get(i)[2] * height;
+            float cornerXMax = (boxes.get(i)[3] + boxes.get(i)[1]) * width;
+            float cornerYMax = (boxes.get(i)[4] + boxes.get(i)[2]) * height;
+
             // Initialize a new Rect object
             // add values because they were removed in Decode function
-            canvas.drawRect(boxes.get(i)[1], boxes.get(i)[2], boxes.get(i)[3] + boxes.get(i)[1], boxes.get(i)[4] + boxes.get(i)[2], paint);
+            canvas.drawRect(cornerXMin,
+                    cornerYMin,
+                    cornerXMax,
+                    cornerYMax,
+                    paint);
         }
         return bitmap;
     }

@@ -17,15 +17,12 @@ import java.nio.channels.FileChannel;
 
 public class TensorFlowImageClassifier implements Classifier {
 
-    private static final int MAX_RESULTS = 3;
     private static final int BATCH_SIZE = 1;
     private static final int PIXEL_SIZE = 3;
-    private static final float THRESHOLD = 0.1f;
     private Interpreter.Options tfliteOptions;
 
     private Interpreter interpreter;
     private int inputSize;
-//    private List<String> labelList;
     public String result_string = "";
 
     private TensorFlowImageClassifier() {

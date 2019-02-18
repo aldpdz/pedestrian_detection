@@ -67,11 +67,13 @@ public class Decode_Detections {
                 float ymax = cy + 0.5f * h;
 
                 // convert from relative coordinates to absolute coordinates
-                xmin = xmin * width;
-                ymin = ymin * height;
-                xmax = xmax * width;
-                ymax = ymax * height;
+//                xmin = xmin * width;
+//                ymin = ymin * height;
+//                xmax = xmax * width;
+//                ymax = ymax * height;
 
+                // convert right, down coordinates to width and height
+                // iou function needs (x, y, width, height)
                 values[1] = xmin;
                 values[2] = ymin;
                 values[3] = xmax - xmin;
@@ -152,7 +154,7 @@ public class Decode_Detections {
     }
 
     /***
-     * Get the intersection over union from to boxes
+     * Get the intersection over union from two boxes
      * @param box1 - Box one
      * @param box2 - Box two
      * @return float - Intersection over union
@@ -165,14 +167,14 @@ public class Decode_Detections {
         Float yB = Math.min(box1[4] + box1[2], box2[4] + box2[2]);
 
         // Compute the area of intersection rectangle
-        Float interArea = Math.max(0, xB - xA -1) * Math.max(0, yB - yA -1);
+        Float interArea = Math.max(0, xB - xA) * Math.max(0, yB - yA);
 
         // Compute the area of each rectangle
-        Float boxAarea = (box1[3] -1) * (box1[4] -1);
-        Float boxBarea = (box2[3] -1) * (box2[4] -1);
+        Float boxAarea = box1[3] * box1[4];
+        Float boxBarea = box2[3] * box2[4];
 
         // compute the intersection over union by taking the intersection
-        // area and dividing it by the sum of prediction + ground truth areas - the interesection area
+        // area and dividing it by the sum of prediction + ground truth areas - the intersection area
         return interArea / (boxAarea + boxBarea - interArea);
     }
 }
