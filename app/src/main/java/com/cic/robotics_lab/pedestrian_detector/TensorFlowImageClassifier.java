@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import org.tensorflow.lite.Interpreter;
+import org.tensorflow.lite.experimental.GpuDelegate;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -35,15 +36,14 @@ public class TensorFlowImageClassifier implements Classifier {
                              int inputSize) throws IOException {
 
         // Initialize interpreter with GPU delegate
-//        GpuDelegate delegate = new GpuDelegate();
+        GpuDelegate delegate = new GpuDelegate();
 
         TensorFlowImageClassifier classifier = new TensorFlowImageClassifier();
         MappedByteBuffer tfliteModel = classifier.loadModelFile(assetManager, modelPath);
 
 //        classifier.tfliteOptions = new Interpreter.Options();
-//        Interpreter.Options options = (new Interpreter.Options()).addDelegate(delegate);
+        classifier.tfliteOptions  = (new Interpreter.Options()).addDelegate(delegate);
         classifier.interpreter = new Interpreter(tfliteModel, classifier.tfliteOptions);
-//        classifier.interpreter = new Interpreter(tfliteModel, options);
         classifier.inputSize = inputSize;
 
         return classifier;
@@ -54,8 +54,9 @@ public class TensorFlowImageClassifier implements Classifier {
 
         // Ensure a valid EGL rendering context.
         ByteBuffer byteBuffer = convertBitmapToByteBuffer(bitmap);
-//        float[][][] result = new float[1][8732][33]; 20 classes
-        float[][][] result = new float[1][8732][14]; // 2 classes with vgg13
+//        float[][][] result = new float[1][8732][33]; //20 classes
+//        float[][][] result = new float[1][8732][14]; // 2 classes with vgg13
+          float[][][]result = new float[1][2424][14];
         interpreter.run(byteBuffer, result);
         Log.d("finished", "yes");
         return result;
@@ -87,9 +88,15 @@ public class TensorFlowImageClassifier implements Classifier {
                 final int val = intValues[pixel++];
                 // Set order as they were trained [2, 1, 0]
                 // Subtract mean [123, 117, 104]
-                byteBuffer.putFloat(((val) & 0xFF) - 104); // channel 2
-                byteBuffer.putFloat(((val >> 8) & 0xFF) - 117); // channel 1
-                byteBuffer.putFloat(((val >> 16) & 0xFF) - 123); // channel 0
+//                byteBuffer.putFloat(((val) & 0xFF) - 104); // channel 2
+//                byteBuffer.putFloat(((val >> 8) & 0xFF) - 117); // channel 1
+//                byteBuffer.putFloat(((val >> 16) & 0xFF) - 123); // channel 0
+//                byteBuffer.putFloat(((val) & 0xFF) ); // channel 2
+//                byteBuffer.putFloat(((val >> 8) & 0xFF)); // channel 1
+//                byteBuffer.putFloat(((val >> 16) & 0xFF)); // channel 0
+                byteBuffer.putFloat((val >> 16) & 0xFF); // channel 0
+                byteBuffer.putFloat((val >> 8) & 0xFF); // channel 1
+                byteBuffer.putFloat((val) & 0xFF); // channel 2
             }
         }
         return byteBuffer;

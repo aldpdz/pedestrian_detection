@@ -34,7 +34,7 @@ public class Decode_Detections {
         // loop over the prediction
         for(int i = 0; i < rawDetections[0].length; i++){
             // perform threshold over the person item
-            // int id_class = 15
+//             int id_class = 15;
             int id_class = 1;
             if (rawDetections[0][i][id_class] > threshold){
                 float [] values = new float[5];

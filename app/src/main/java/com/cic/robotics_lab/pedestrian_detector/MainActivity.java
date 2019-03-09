@@ -25,9 +25,11 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity {
 
     private static int PICK_IMAGE_REQUEST = 1;
-    private static final String MODEL_PATH = "tflite_vgg13_bn.tflite";
+//    private static final String MODEL_PATH = "tflite_vgg16_20.tflite";
+//    private static final String MODEL_PATH =  "tflite_mobilenetv1.tflite";
+    private static final String MODEL_PATH =  "ssdlitemnetv2.tflite";
     private static final String LABEL_PATH = "labels3.txt";
-    private static final int INPUT_SIZE = 300;
+    private static final int INPUT_SIZE = 320;
 
     private int SAVE = 12;
 
@@ -89,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
                 netTime = String.format("%.4f", (float)(endTime - startTime)/1000);
 
                 startTime = System.currentTimeMillis();
-                Decode_Detections decode_detections = new Decode_Detections(results, 0.50f, bmpOriginal.getWidth(), bmpOriginal.getHeight());
+                Decode_Detections decode_detections = new Decode_Detections(results, 0.20f, bmpOriginal.getWidth(), bmpOriginal.getHeight());
                 ArrayList<float[]> decodeDetections = decode_detections.getDecode_detections();
                 endTime = System.currentTimeMillis();
                 posProcessTime = String.format( "%.4f", (float)(endTime - startTime)/1000);
